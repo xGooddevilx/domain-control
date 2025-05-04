@@ -1,0 +1,24 @@
+// cSpell Settings
+{
+  "$schema": "https://raw.githubusercontent.com/streetsidesoftware/cspell/main/cspell.schema.json",
+  // Version of the setting file.  Always 0.2
+  "version": "0.2",
+  // language - current active spelling language
+  "language": "en",
+  // words - list of words to be always considered correct
+  "words": [
+    "githubusercontent",
+    "mkdirp",
+    "Rootlayout",
+    "streetsidesoftware",
+    "tsmerge",
+    "visualstudio",
+    "vsmarketplacebadge"
+  ],
+  "ignorePaths": [
+    "node_modules",
+    "./package.json",
+    "./package-lock.json",
+    "/src/routeTree.gen.ts"
+  ]
+}
