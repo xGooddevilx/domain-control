@@ -14,8 +14,7 @@ function App() {
           Welcome to Domain Manager
         </h1>
         <p className="text-lg text-gray-600 mb-8 max-w-xl">
-          Manage your domains easily — add, edit, filter, and search in a
-          beautifully simple interface.
+          Manage your domains easily
         </p>
         <Link to="/domains">
           <Button type="primary" size="large">

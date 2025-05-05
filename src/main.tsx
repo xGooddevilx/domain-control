@@ -8,6 +8,8 @@ import "@/styles/styles.css"
 import { routeTree } from './routeTree.gen'
 
 import reportWebVitals from './reportWebVitals.ts'
+import { Provider } from 'react-redux'
+import { store } from './modules/store/store.ts'
 
 // Create a new router instance
 const router = createRouter({
@@ -32,7 +34,9 @@ if (rootElement && !rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement)
   root.render(
     <StrictMode>
-      <RouterProvider router={router} />
+      <Provider store={store}>
+        <RouterProvider router={router} />
+      </Provider>
     </StrictMode>,
   )
 }

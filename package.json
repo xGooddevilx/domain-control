@@ -15,6 +15,8 @@
     "check": "prettier --write . && eslint --fix"
   },
   "dependencies": {
+    "@ant-design/icons": "5.x",
+    "@reduxjs/toolkit": "^2.7.0",
     "@t3-oss/env-core": "0.12.0",
     "@tanstack/react-router": "1.114.3",
     "@tanstack/react-router-devtools": "1.114.3",
@@ -24,6 +26,7 @@
     "cspell": "8.19.4",
     "react": "19.0.0",
     "react-dom": "19.0.0",
+    "react-redux": "^9.2.0",
     "tailwind-merge": "^3.2.0",
     "zod": "3.24.2"
   },
