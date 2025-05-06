@@ -1,75 +1,92 @@
 import { useState } from 'react'
-import { Button, Drawer, Input, Select, Form, Switch, Tag, Table } from 'antd'
+import {
+  Button,
+  Drawer,
+  Input,
+  Select,
+  Form,
+  Switch,
+  Tag,
+  Table,
+  message,
+} from 'antd'
 import { PlusOutlined, SearchOutlined } from '@ant-design/icons'
-import { useGetDomainsQuery } from '@/modules/services/domainApi'
-import type { Domain } from '@/modules/services/types'
+import {
+  useAddDomainMutation,
+  useGetDomainsQuery,
+} from '@/modules/services/domainApi'
+import type { DomainVariables } from '@/modules/services/types'
 
 const { Option } = Select
 
 const DomainsPage = () => {
-
-    const { data: domains = [], isLoading } = useGetDomainsQuery()
-    console.log(domains);
-
+  const { data: domains = [], isLoading } = useGetDomainsQuery()
+  const [createDomain] = useAddDomainMutation()
+  console.log(domains)
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const [form] = Form.useForm()
 
   const openDrawer = () => setIsDrawerOpen(true)
   const closeDrawer = () => setIsDrawerOpen(false)
 
-  const onFinish = (values: Domain) => {
-    console.log(values);
-    closeDrawer()
-    form.resetFields()
+  const onFinish = async (values: Omit<DomainVariables, 'createdDate'>) => {
+    try {
+      await createDomain({
+        ...values,
+        createdDate: Math.floor(Date.now() / 1000),
+      }).unwrap()
+      message.success('Domain created successfully!')
+      closeDrawer()
+      form.resetFields()
+    } catch (err) {
+      message.error('Failed to create domain!')
+    }
   }
 
-
-
-const columns = [
-  {
-    title: 'Domain URL',
-    dataIndex: 'domain',
-    key: 'domain',
-  },
-  {
-    title: 'Verification Status',
-    dataIndex: 'status',
-    key: 'status',
-    render: (status: string) => {
-      let color =
-        status === 'verified'
-          ? 'green'
-          : status === 'pending'
-            ? 'orange'
-            : 'red'
-      return (
-        <Tag color={color} bordered={false}>
-          {status.toUpperCase()}
-        </Tag>
-      )
+  const columns = [
+    {
+      title: 'Domain URL',
+      dataIndex: 'domain',
+      key: 'domain',
     },
-  },
-  {
-    title: 'Active State',
-    dataIndex: 'isActive',
-    key: 'isActive',
-    render: (active: boolean) => (
-      <Tag color={active ? 'green' : 'red'} bordered={false}>
-        {active ? 'Active' : 'Inactive'}
-      </Tag>
-    ),
-  },
-  {
-    title: 'Actions',
-    key: 'actions',
-    render: (_: any, record: any) => (
-      <Button type="link" onClick={() => console.log('Edit', record)}>
-        Edit
-      </Button>
-    ),
-  },
-]
-
+    {
+      title: 'Verification Status',
+      dataIndex: 'status',
+      key: 'status',
+      render: (status: string) => {
+        let color =
+          status === 'verified'
+            ? 'green'
+            : status === 'pending'
+              ? 'orange'
+              : 'red'
+        return (
+          <Tag color={color} bordered={false}>
+            {status.toUpperCase()}
+          </Tag>
+        )
+      },
+    },
+    {
+      title: 'Active State',
+      dataIndex: 'isActive',
+      key: 'isActive',
+      render: (active: boolean) => (
+        <Tag color={active ? 'green' : 'red'} bordered={false}>
+          {active ? 'Active' : 'Inactive'}
+        </Tag>
+      ),
+    },
+    {
+      title: 'Actions',
+      key: 'actions',
+      render: (_: any, record: any) => (
+        <Button type="link" onClick={() => console.log('Edit', record)}>
+          Edit
+        </Button>
+      ),
+    },
+  ]
 
   return (
     <div className="mt-5 p-4">

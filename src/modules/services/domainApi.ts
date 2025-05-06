@@ -1,5 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { env } from '../env/env';
+import type { DomainDto, DomainVariables } from './types';
 
 export const domainApi = createApi({
   reducerPath: 'domainApi',
@@ -8,14 +9,14 @@ export const domainApi = createApi({
   }),
   tagTypes: ['Domain'],
   endpoints: (builder) => ({
-    getDomains: builder.query<any[], void>({
+    getDomains: builder.query<DomainDto[], void>({
       query: () => '/',
       providesTags: ['Domain'],
     }),
-    getDomainById: builder.query<any, string>({
+    getDomainById: builder.query<DomainDto, string>({
       query: (id) => `/${id}`,
     }),
-    addDomain: builder.mutation<any, Partial<any>>({
+    addDomain: builder.mutation<DomainVariables, Partial<any>>({
       query: (newDomain) => ({
         url: '/',
         method: 'POST',
