@@ -26,7 +26,14 @@ export const DomainForm = ({ data, onSubmit, isLoading }: Props) => {
       <Form.Item
         name="domain"
         label="Domain"
-        rules={[{ required: true, message: 'Please enter a domain name' }]}
+        rules={[
+          { required: true, message: 'Please enter a domain name' },
+          {
+            pattern: /^(https?:\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/,
+            message:
+              'Enter a valid domain (e.g., example.com or http://example.com)',
+          },
+        ]}
       >
         <Input placeholder="e.g., example.com" />
       </Form.Item>
