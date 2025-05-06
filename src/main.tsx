@@ -2,7 +2,7 @@ import { StrictMode } from 'react'
 import ReactDOM from 'react-dom/client'
 import { RouterProvider, createRouter } from '@tanstack/react-router'
 
-import "@/styles/styles.css" 
+import '@/styles/styles.css'
 
 // Import the generated route tree
 import { routeTree } from './routeTree.gen'
@@ -10,6 +10,7 @@ import { routeTree } from './routeTree.gen'
 import reportWebVitals from './reportWebVitals.ts'
 import { Provider } from 'react-redux'
 import { store } from './modules/store/store.ts'
+import { NuqsAdapter } from 'nuqs/adapters/react'
 
 // Create a new router instance
 const router = createRouter({
@@ -34,9 +35,11 @@ if (rootElement && !rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement)
   root.render(
     <StrictMode>
-      <Provider store={store}>
-        <RouterProvider router={router} />
-      </Provider>
+      <NuqsAdapter>
+        <Provider store={store}>
+          <RouterProvider router={router} />
+        </Provider>
+      </NuqsAdapter>
     </StrictMode>,
   )
 }

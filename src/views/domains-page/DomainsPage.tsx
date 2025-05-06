@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { Button, Drawer, Input, Select, Form } from 'antd'
-import { PlusOutlined, SearchOutlined } from '@ant-design/icons'
+import { Button, Drawer, Form } from 'antd'
+import { PlusOutlined } from '@ant-design/icons'
 import {
   useAddDomainMutation,
   useDeleteDomainMutation,
@@ -11,8 +11,7 @@ import type { DomainDto, DomainVariables } from '@/modules/services/types'
 import { DomainForm } from './components/DomainForm'
 import { DomainTable } from './components/DomainTable'
 import { useToast } from '@/modules/toast/ToastProvider'
-
-const { Option } = Select
+import { FilterForm } from './components/FilterForm'
 
 const DomainsPage = () => {
   const toast = useToast()
@@ -91,33 +90,8 @@ const DomainsPage = () => {
         >
           Add Domain
         </Button>
-        <div className="flex gap-2">
-          <Select
-            defaultValue="all"
-            onChange={(value) => console.log('Filter by status:', value)}
-            size="large"
-            className="w-56"
-          >
-            <Option value="all">All Statuses</Option>
-            <Option value="pending">Pending</Option>
-            <Option value="verified">Verified</Option>
-            <Option value="rejected">Rejected</Option>
-          </Select>
-          <Select placeholder="Sort by" className="w-56" size="large">
-            <Option value="asc">Ascending</Option>
-            <Option value="desc">Descending</Option>
-          </Select>
-
-          <Input
-            placeholder="Search by domain"
-            allowClear
-            size="large"
-            prefix={<SearchOutlined />}
-            className="w-56"
-          />
-        </div>
+        <FilterForm />
       </div>
-
       <DomainTable
         domains={domains}
         loading={isTableLoading}
