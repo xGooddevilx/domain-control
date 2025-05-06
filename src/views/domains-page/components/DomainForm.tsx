@@ -1,4 +1,3 @@
-// components/DomainForm.tsx
 import type { DomainDto } from '@/modules/services/types'
 import { Button, Form, Input, Select, Switch } from 'antd'
 import { useEffect } from 'react'
@@ -8,17 +7,19 @@ const { Option } = Select
 type Props = {
   data?: DomainDto | null
   onSubmit: (values: any) => void
+  isLoading?: boolean
 }
 
-export const DomainForm = ({ data, onSubmit }: Props) => {
+export const DomainForm = ({ data, onSubmit, isLoading }: Props) => {
   const [form] = Form.useForm()
 
   useEffect(() => {
-    if (data) {
-      form.setFieldsValue(data)
+    if (data) form.setFieldsValue(data)
+    else form.resetFields()
+    return () => {
+      form.resetFields()
     }
-    
-  }, [data])
+  }, [data, form])
 
   return (
     <Form layout="vertical" form={form} onFinish={onSubmit}>
@@ -48,7 +49,7 @@ export const DomainForm = ({ data, onSubmit }: Props) => {
       </Form.Item>
 
       <div className="flex justify-end mt-4">
-        <Button htmlType="submit" type="primary">
+        <Button htmlType="submit" type="primary" loading={isLoading}>
           Save
         </Button>
       </div>

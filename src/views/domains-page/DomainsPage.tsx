@@ -1,29 +1,40 @@
 import { useState } from 'react'
-import { Button, Drawer, Input, Select, Form, Tag, Table, message } from 'antd'
+import { Button, Drawer, Input, Select, Form } from 'antd'
 import { PlusOutlined, SearchOutlined } from '@ant-design/icons'
 import {
   useAddDomainMutation,
+  useDeleteDomainMutation,
   useGetDomainsQuery,
   useUpdateDomainMutation,
 } from '@/modules/services/domainApi'
 import type { DomainDto, DomainVariables } from '@/modules/services/types'
 import { DomainForm } from './components/DomainForm'
+import { DomainTable } from './components/DomainTable'
+import { useToast } from '@/modules/toast/ToastProvider'
 
 const { Option } = Select
 
 const DomainsPage = () => {
+  const toast = useToast()
   const { data: domains = [], isLoading } = useGetDomainsQuery()
-  const [createDomain] = useAddDomainMutation()
-  const [updateDomain] = useUpdateDomainMutation()
+
+  const [createDomain, { isLoading: isCreating }] = useAddDomainMutation()
+  const [updateDomain, { isLoading: isUpdating }] = useUpdateDomainMutation()
+  const [deleteDomain, { isLoading: isDeleting }] = useDeleteDomainMutation()
+
+  const isMutating = isCreating || isUpdating || isDeleting
+  const isTableLoading = isLoading || isMutating
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const [editingDomain, setEditingDomain] = useState<DomainDto | null>(null)
-  console.log('domains', domains)
 
   const [form] = Form.useForm()
 
   const openDrawer = () => setIsDrawerOpen(true)
-  const closeDrawer = () => setIsDrawerOpen(false)
+  const closeDrawer = () => {
+    setIsDrawerOpen(false)
+    setEditingDomain(null)
+  }
 
   const handleDrawerOpen = (domain?: DomainDto) => {
     setEditingDomain(domain || null)
@@ -36,11 +47,11 @@ const DomainsPage = () => {
         ...values,
         createdDate: Math.floor(Date.now() / 1000),
       }).unwrap()
-      message.success('Domain created successfully!')
+      toast.success('Domain created successfully!')
       closeDrawer()
       form.resetFields()
     } catch (err) {
-      message.error('Failed to create domain!')
+      toast.error('Failed to create domain!')
     }
   }
 
@@ -49,60 +60,24 @@ const DomainsPage = () => {
     try {
       await updateDomain({
         id: editingDomain.id,
-        data: {...values}
+        data: { ...values },
       }).unwrap()
-      message.success('Domain updated successfully!')
+      toast.success('Domain updated successfully!')
       closeDrawer()
       form.resetFields()
     } catch (err) {
-      message.error('Failed to update domain!')
+      toast.error('Failed to update domain!')
     }
   }
 
-  const columns = [
-    {
-      title: 'Domain URL',
-      dataIndex: 'domain',
-      key: 'domain',
-    },
-    {
-      title: 'Verification Status',
-      dataIndex: 'status',
-      key: 'status',
-      render: (status: string) => {
-        let color =
-          status === 'verified'
-            ? 'green'
-            : status === 'pending'
-              ? 'orange'
-              : 'red'
-        return (
-          <Tag color={color} bordered={false}>
-            {status.toUpperCase()}
-          </Tag>
-        )
-      },
-    },
-    {
-      title: 'Active State',
-      dataIndex: 'isActive',
-      key: 'isActive',
-      render: (active: boolean) => (
-        <Tag color={active ? 'green' : 'red'} bordered={false}>
-          {active ? 'Active' : 'Inactive'}
-        </Tag>
-      ),
-    },
-    {
-      title: 'Actions',
-      key: 'actions',
-      render: (_: any, record: any) => (
-        <Button type="link" onClick={() => handleDrawerOpen(record)}>
-          Edit
-        </Button>
-      ),
-    },
-  ]
+  const handleDelete = async (domain: DomainDto) => {
+    try {
+      await deleteDomain(domain.id).unwrap()
+      toast.success('Domain deleted successfully!')
+    } catch {
+      toast.error('Failed to delete domain.')
+    }
+  }
 
   return (
     <div className="mt-5 p-4">
@@ -143,24 +118,25 @@ const DomainsPage = () => {
         </div>
       </div>
 
-      <Table
-        dataSource={domains}
-        columns={columns}
-        rowKey="_id"
-        className="mt-6"
-        loading={isLoading}
+      <DomainTable
+        domains={domains}
+        loading={isTableLoading}
+        onEdit={handleDrawerOpen}
+        onDelete={handleDelete}
       />
 
       <Drawer
-        title="Add Domain"
+        title={editingDomain ? 'Edit Domain' : 'Add Domain'}
         placement="right"
         open={isDrawerOpen}
         onClose={closeDrawer}
         width={400}
+        destroyOnClose
       >
         <DomainForm
           onSubmit={editingDomain ? handleEdit : handleCreate}
           data={editingDomain}
+          isLoading={isMutating}
         />
       </Drawer>
     </div>
