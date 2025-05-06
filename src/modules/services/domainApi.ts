@@ -24,7 +24,7 @@ export const domainApi = createApi({
       }),
       invalidatesTags: ['Domain'],
     }),
-    updateDomain: builder.mutation<any, { id: string; data: Partial<any> }>({
+    updateDomain: builder.mutation<any, { id: string; data: Partial<DomainVariables> }>({
       query: ({ id, data }) => ({
         url: `/${id}`,
         method: 'PUT',

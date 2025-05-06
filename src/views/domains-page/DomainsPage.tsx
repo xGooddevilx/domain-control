@@ -1,35 +1,36 @@
 import { useState } from 'react'
-import {
-  Button,
-  Drawer,
-  Input,
-  Select,
-  Form,
-  Switch,
-  Tag,
-  Table,
-  message,
-} from 'antd'
+import { Button, Drawer, Input, Select, Form, Tag, Table, message } from 'antd'
 import { PlusOutlined, SearchOutlined } from '@ant-design/icons'
 import {
   useAddDomainMutation,
   useGetDomainsQuery,
+  useUpdateDomainMutation,
 } from '@/modules/services/domainApi'
-import type { DomainVariables } from '@/modules/services/types'
+import type { DomainDto, DomainVariables } from '@/modules/services/types'
+import { DomainForm } from './components/DomainForm'
 
 const { Option } = Select
 
 const DomainsPage = () => {
   const { data: domains = [], isLoading } = useGetDomainsQuery()
   const [createDomain] = useAddDomainMutation()
-  console.log(domains)
+  const [updateDomain] = useUpdateDomainMutation()
+
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
+  const [editingDomain, setEditingDomain] = useState<DomainDto | null>(null)
+  console.log('domains', domains)
+
   const [form] = Form.useForm()
 
   const openDrawer = () => setIsDrawerOpen(true)
   const closeDrawer = () => setIsDrawerOpen(false)
 
-  const onFinish = async (values: Omit<DomainVariables, 'createdDate'>) => {
+  const handleDrawerOpen = (domain?: DomainDto) => {
+    setEditingDomain(domain || null)
+    setIsDrawerOpen(true)
+  }
+
+  const handleCreate = async (values: Omit<DomainVariables, 'createdDate'>) => {
     try {
       await createDomain({
         ...values,
@@ -40,6 +41,21 @@ const DomainsPage = () => {
       form.resetFields()
     } catch (err) {
       message.error('Failed to create domain!')
+    }
+  }
+
+  const handleEdit = async (values: Omit<DomainVariables, 'createdDate'>) => {
+    if (!editingDomain) return
+    try {
+      await updateDomain({
+        id: editingDomain.id,
+        data: {...values}
+      }).unwrap()
+      message.success('Domain updated successfully!')
+      closeDrawer()
+      form.resetFields()
+    } catch (err) {
+      message.error('Failed to update domain!')
     }
   }
 
@@ -81,7 +97,7 @@ const DomainsPage = () => {
       title: 'Actions',
       key: 'actions',
       render: (_: any, record: any) => (
-        <Button type="link" onClick={() => console.log('Edit', record)}>
+        <Button type="link" onClick={() => handleDrawerOpen(record)}>
           Edit
         </Button>
       ),
@@ -142,41 +158,10 @@ const DomainsPage = () => {
         onClose={closeDrawer}
         width={400}
       >
-        <Form layout="vertical" form={form} onFinish={onFinish}>
-          <Form.Item
-            name="domain"
-            label="Domain"
-            rules={[{ required: true, message: 'Please enter a domain name' }]}
-          >
-            <Input placeholder="e.g., example.com" />
-          </Form.Item>
-
-          <Form.Item name="status" label="Status" rules={[{ required: true }]}>
-            <Select placeholder="Select status">
-              <Option value="pending">Pending</Option>
-              <Option value="verified">Verified</Option>
-              <Option value="rejected">Rejected</Option>
-            </Select>
-          </Form.Item>
-
-          <Form.Item
-            name="isActive"
-            label="Active"
-            valuePropName="checked"
-            initialValue={true}
-          >
-            <Switch />
-          </Form.Item>
-
-          <div className="flex justify-end mt-4">
-            <Button onClick={closeDrawer} className="mr-2">
-              Cancel
-            </Button>
-            <Button type="primary" htmlType="submit">
-              Save
-            </Button>
-          </div>
-        </Form>
+        <DomainForm
+          onSubmit={editingDomain ? handleEdit : handleCreate}
+          data={editingDomain}
+        />
       </Drawer>
     </div>
   )
