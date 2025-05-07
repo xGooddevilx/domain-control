@@ -17,12 +17,14 @@ export const FilterForm = () => {
   const [search, setSearch] = useQueryState('search', {
     clearOnDefault: true,
     defaultValue: '',
+    throttleMs: 1500,
   })
 
   const handleStatusChange = (value: string) => setStatus(value)
   const handleSortChange = (value: string) => setSort(value)
-  const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) =>
-    setSearch(e.target.value)
+  const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setSearch(event.target.value)
+  }
 
   return (
     <div className="flex gap-2">

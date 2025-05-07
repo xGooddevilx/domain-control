@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Button, Drawer, Form } from 'antd'
 import { PlusOutlined } from '@ant-design/icons'
 import {
@@ -12,6 +12,7 @@ import { DomainForm } from './components/DomainForm'
 import { DomainTable } from './components/DomainTable'
 import { useToast } from '@/modules/toast/ToastProvider'
 import { FilterForm } from './components/FilterForm'
+import { useQueryState } from 'nuqs'
 
 const DomainsPage = () => {
   const toast = useToast()
@@ -28,6 +29,10 @@ const DomainsPage = () => {
   const [editingDomain, setEditingDomain] = useState<DomainDto | null>(null)
 
   const [form] = Form.useForm()
+
+  const [status] = useQueryState('status')
+  const [search] = useQueryState('search')
+  const [sort] = useQueryState('sort')
 
   const openDrawer = () => setIsDrawerOpen(true)
   const closeDrawer = () => {
@@ -78,6 +83,31 @@ const DomainsPage = () => {
     }
   }
 
+  const filteredDomains = useMemo(() => {
+    return domains
+      .filter((domain) => {
+        if (status && status !== 'all') {
+          return domain.status === status
+        }
+        return true
+      })
+      .filter((domain) => {
+        if (search) {
+          const searchQuery = search.toLowerCase()
+          return domain.domain.toLowerCase().includes(searchQuery)
+        }
+        return true
+      })
+      .sort((a, b) => {
+        if (sort === 'asc') {
+          return a.domain.localeCompare(b.domain)
+        } else if (sort === 'desc') {
+          return b.domain.localeCompare(a.domain)
+        }
+        return 0
+      })
+  }, [domains, status, search, sort])
+
   return (
     <div className="mt-5 p-4">
       <h2 className="font-light text-3xl mb-6">Domains</h2>
@@ -93,7 +123,7 @@ const DomainsPage = () => {
         <FilterForm />
       </div>
       <DomainTable
-        domains={domains}
+        domains={filteredDomains}
         loading={isTableLoading}
         onEdit={handleDrawerOpen}
         onDelete={handleDelete}
